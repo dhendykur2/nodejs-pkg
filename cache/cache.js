@@ -4,40 +4,74 @@ const checkLength = (str = '') => str.length > 255;
 /**
    * Cache Constructor
    * This is Application Level Memory Caching
-   * TODO: implementing expiration time ?
-   * NOTE: The Data should be be change through sistem, not directly to db.
 */
 function Cache() {
   const _cache = {};
 
-  this.put = function(key, value) {
+  /**
+   * Put Function
+   * @param {String} key
+   * @param {any} value
+   * @param {Number} ex Number in seconds
+   * @return {any}
+   */
+  this.put = function(key, value, ex) {
     if (!key || !value || typeof key != 'string' || checkLength(key)) return null;
-    _cache[key] = JSON.stringify(value);
+    if (ex && typeof ex === 'number') {
+      let a = new Date()
+      ex = a.setSeconds(a.getSeconds() + ex);
+    }
+    _cache[key] = JSON.stringify([value, ex]);
     return value;
   };
 
+  /**
+   * Get Function
+   * @param {String} key
+   * @return {any}
+   */
   this.get = function(key) {
     if (!key || typeof key != 'string') return null;
 
     const val = _cache[key];
     if (!val) return null;
+    const [value, ex] = JSON.parse(val);
+    if (ex && Date.now() - ex > 0) {
+      _cache[key] = null;
+      delete _cache[key];
+      return null;
+    }
 
-    return JSON.parse(val);
+    return value
   };
 
+  /**
+   * Del Function
+   * @param {String} key
+   * @return {any}
+   */
   this.del = function(key) {
     if (!key || typeof key != 'string') return null;
 
     const data = _cache[key];
     if (!data) return null;
-    delete _cache[key]
+    // Set null to clear the memory also
+    _cache[key] = null;
+    delete _cache[key];
 
     return JSON.parse(data);
   };
 
+  /**
+   * Clear all the cache
+   */
   this.clear = function() {
     for (const key in _cache) {
-      if (_cache.hasOwnProperty(key)) delete _cache[key];
+      if (_cache.hasOwnProperty(key)) {
+        // Set null to clear the memory also
+        _cache[key] = null;
+        delete _cache[key];
+      }
     }
   };
 }

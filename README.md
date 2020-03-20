@@ -6,4 +6,4 @@ Because it would be better if we know what happen in the package that we use in 
 
 # Packages
 ## [In Memory Cache](https://github.com/dhendykur2/nodejs-pkg/tree/master/cache)
-Store the data with key value based. Its persistent data except you flush the cache or delete that key. Im not implementing expire time because rather than we store the temporary data in our application, I recommend use redis instead.
+Store the data with key value based. Its persistent data except you flush the cache or delete that key. Using Lazy Expiration to delete the cache.

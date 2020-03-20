@@ -9,6 +9,11 @@ const cache = require('./cache');
 // store the value with key
 cache.put('key', { value: 'value' });
 
+
+// parameters: key -> String, value -> any, expiration -> Number in seconds
+// store the value with key
+cache.put('key1', { value: 'value1' }, 120);
+
 // parameters: key -> String
 // get value by key
 const data = cache.get('key');
