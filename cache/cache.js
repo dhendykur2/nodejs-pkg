@@ -16,8 +16,11 @@ function Cache() {
    * @return {any}
    */
   this.put = function(key, value, ex) {
-    if (!key || !value || typeof key != 'string' || checkLength(key)) return null;
-    if (ex && typeof ex === 'number') {
+    if (!key || !value) throw new Error('Key/Value cannot be empty');
+    if (typeof key != 'string') throw new Error('Key Must be String.');
+    if (ex && typeof ex != 'number') throw new Error('Expiration must be a Number/Integer')
+
+    if (ex) {
       let a = new Date()
       ex = a.setSeconds(a.getSeconds() + ex);
     }
@@ -31,15 +34,15 @@ function Cache() {
    * @return {any}
    */
   this.get = function(key) {
-    if (!key || typeof key != 'string') return null;
+    if (!key || typeof key != 'string') throw new Error('Key cannot be empty and must be string');;
 
     const val = _cache[key];
-    if (!val) return null;
+    if (!val) return undefined;
     const [value, ex] = JSON.parse(val);
     if (ex && Date.now() - ex > 0) {
       _cache[key] = null;
       delete _cache[key];
-      return null;
+      return undefined;
     }
 
     return value
@@ -51,7 +54,7 @@ function Cache() {
    * @return {any}
    */
   this.del = function(key) {
-    if (!key || typeof key != 'string') return null;
+    if (!key || typeof key != 'string') throw new Error('Key cannot be empty and must be string');;
 
     const data = _cache[key];
     if (!data) return null;
