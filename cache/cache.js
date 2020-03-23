@@ -79,4 +79,36 @@ function Cache() {
   };
 }
 
-module.exports = new Cache();
+/**
+ * Usage example: 
+ * 
+ * const inMemoryCache = new Cache();
+ * const loanAccountsCache = new WithEnvOnOffSwitch(inMemoryCache, 'LMS_CACHE_IN_MEMORY_LOAN_ACCOUNTS');
+ * 
+ * Then you can proceed to use loanAccountsCache as if it is just a Cache() object. 
+ * 
+ * @param {Cache} cacheInfra 
+ * @param {String} switchKey 
+ */
+function WithEnvOnOffSwitch(cacheInfra, switchKey) {
+
+  const _withSwitchCheck = function(wrappedFunction) {
+    return function(...args) {
+      if (!process.env[`${switchKey}`]) {
+        return undefined;
+      }
+      return wrappedFunction(...args);
+    };
+  }
+
+  this.put = _withSwitchCheck(cacheInfra.put);
+  this.get = _withSwitchCheck(cacheInfra.get);
+  this.del = _withSwitchCheck(cacheInfra.del);
+  this.clear = _withSwitchCheck(cacheInfra.clear);
+
+} 
+
+module.exports = {
+  inMemoryCache: new Cache(),
+  WithEnvOnOffSwitch,
+}
